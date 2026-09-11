@@ -1,0 +1,116 @@
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-top: 68px; /* navbar height */
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+}
+
+.hero-text {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.hero-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.hero-eyebrow span {
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.hero-eyebrow-line {
+  width: 36px;
+  height: 1.5px;
+  background: var(--terracotta);
+  border-radius: 2px;
+}
+
+.hero-title {
+  font-size: clamp(5rem, 10vw, 12rem);
+  line-height: 0.85;
+  letter-spacing: -0.04em;
+  color: var(--navy);
+  margin-bottom: 1.5rem;
+  white-space: nowrap;
+}
+
+.hero-title em {
+  font-style: italic;
+  color: var(--terracotta);
+}
+
+.hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+/* Floating Artworks */
+.hero-floating-art {
+  position: absolute;
+  z-index: 1;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(26,39,68,0.1);
+  transition: transform var(--t-slow);
+}
+
+.hero-floating-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: sepia(10%) contrast(1.1);
+}
+
+.art-1 {
+  width: 200px;
+  height: 260px;
+  top: 15%;
+  left: 8%;
+  transform: rotate(-4deg);
+}
+
+.art-2 {
+  width: 240px;
+  height: 300px;
+  bottom: 10%;
+  left: 20%;
+  transform: rotate(6deg);
+}
+
+.art-3 {
+  width: 180px;
+  height: 220px;
+  top: 20%;
+  right: 10%;
+  transform: rotate(8deg);
+}
+
+.art-4 {
+  width: 260px;
+  height: 320px;
+  bottom: 12%;
+  right: 18%;
+  transform: rotate(-5deg);
+}
+
+@media (max-width: 1024px) {
+  .hero-floating-art { opacity: 0.4; }
+  .hero-title { font-size: clamp(4rem, 8vw, 6rem); }
+}
