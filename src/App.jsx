@@ -4,6 +4,8 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './sections/Home';
 import Admin from './sections/Admin';
+import AdminLogin from './sections/AdminLogin';
+import ProtectedAdminRoute from './components/ProtectedAdminRoute';
 
 function App() {
   const [cursorState, setCursorState] = useState('');
@@ -42,7 +44,12 @@ function App() {
       <main>
         <Routes>
           <Route path="/" element={<Home setCursorState={setCursorState} />} />
-          <Route path="/admin" element={<Admin />} />
+          <Route path="/admin" element={
+            <ProtectedAdminRoute>
+              <Admin />
+            </ProtectedAdminRoute>
+          } />
+          <Route path="/admin/login" element={<AdminLogin />} />
         </Routes>
       </main>
       <Footer />

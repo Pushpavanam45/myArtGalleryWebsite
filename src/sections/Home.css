@@ -114,3 +114,22 @@
   .hero-floating-art { opacity: 0.4; }
   .hero-title { font-size: clamp(4rem, 8vw, 6rem); }
 }
+
+@media (max-width: 768px) {
+  .hero-title { 
+    font-size: clamp(3rem, 12vw, 4rem); 
+    white-space: normal;
+  }
+  .hero-actions { gap: 1rem; flex-wrap: wrap; justify-content: center; }
+  .art-1, .art-4 { display: none; }
+  .art-2 { width: 160px; height: 200px; bottom: 5%; left: 5%; }
+  .art-3 { width: 140px; height: 180px; top: 10%; right: 5%; }
+}
+
+@media (max-width: 480px) {
+  .hero-title { font-size: clamp(2.5rem, 10vw, 3rem); }
+  .hero-eyebrow span { font-size: 0.65rem; }
+  .hero-eyebrow-line { width: 24px; }
+  .hero-actions { flex-direction: column; width: 100%; gap: 1rem; }
+  .hero-actions a { width: 80%; }
+}

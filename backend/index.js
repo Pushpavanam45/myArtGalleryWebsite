@@ -12,67 +12,154 @@ import cors from 'cors';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import { initializeApp, getApps, cert } from 'firebase-admin/app';
+import { getAuth } from 'firebase-admin/auth';
+import { getFirestore } from 'firebase-admin/firestore';
 import { sendOwnerNotification, sendVisitorConfirmation } from './services/brevoEmailService.js';
 
+// ── Firebase Admin Init ────────────────────────────────────────────────────
+let adminAuth;
+let adminDb;
+let adminRoleCheckEnabled = false;
+
+try {
+  if (!getApps().length) {
+    const serviceAccountRaw = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
+
+    if (serviceAccountRaw && serviceAccountRaw.trim() !== '') {
+      let serviceAccount;
+      try {
+        // Handle both plain JSON and JSON with escaped newlines (common in env vars)
+        serviceAccount = JSON.parse(serviceAccountRaw.replace(/\\n/g, '\n'));
+      } catch (parseErr) {
+        console.error('❌  FIREBASE_SERVICE_ACCOUNT_KEY is set but could not be parsed as JSON.');
+        console.error('    Check that the value in backend/.env is valid JSON (no trailing commas, correct quotes).');
+        console.error('    Parse error:', parseErr.message);
+        process.exit(1);
+      }
+
+      initializeApp({ credential: cert(serviceAccount) });
+      adminRoleCheckEnabled = true;
+      console.log('✅  Firebase Admin initialized with service account. Firestore admin-role check ENABLED.');
+    } else {
+      initializeApp({ projectId: 'artgallery-69371' });
+      console.warn('⚠️  FIREBASE_SERVICE_ACCOUNT_KEY is not set in backend/.env.');
+      console.warn('    Firestore admin-role check is DISABLED — only Firebase token signature is verified.');
+      console.warn('    To enable full admin-role authorization, add FIREBASE_SERVICE_ACCOUNT_KEY to backend/.env.');
+      console.warn('    See backend/.env.example for instructions.');
+    }
+  }
+  adminAuth = getAuth();
+  adminDb = getFirestore();
+} catch (err) {
+  console.error('❌  Firebase Admin initialization failed:', err.message);
+  process.exit(1);
+}
 
 const app = express();
-app.use(cors());
+// ── CORS config ────────────────────────────────────────────────────────────
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:5174',
+  ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : [])
+];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  }
+}));
 app.use(express.json());
 
-// ── Ensure uploads directory exists ────────────────────────────────────────
-const uploadDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+// ── Cloudinary & Multer config ─────────────────────────────────────────────
+import { v2 as cloudinary } from 'cloudinary';
+import { CloudinaryStorage } from 'multer-storage-cloudinary';
 
-// Serve uploaded files as public static assets
-app.use('/uploads', express.static(uploadDir));
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
-// ── Multer config ──────────────────────────────────────────────────────────
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => cb(null, uploadDir),
-  filename: (_req, file, cb) => {
-    const ext = path.extname(file.originalname).toLowerCase();
-    const unique = `${Date.now()}_${Math.round(Math.random() * 1e6)}${ext}`;
-    cb(null, unique);
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'artgallery',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
   },
 });
 
-const fileFilter = (_req, file, cb) => {
-  const allowed = /\.(jpg|jpeg|png|webp)$/i;
-  if (allowed.test(file.originalname)) cb(null, true);
-  else cb(new Error('Unsupported file type. Only JPG, PNG, WEBP allowed.'), false);
-};
-
-const upload = multer({ storage, fileFilter, limits: { fileSize: 8 * 1024 * 1024 } });
+const upload = multer({ storage: storage, limits: { fileSize: 8 * 1024 * 1024 } });
 
 // ── Health check ───────────────────────────────────────────────────────────
 app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
 
+// ── Admin Verification Middleware ──────────────────────────────────────────
+const verifyAdmin = async (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Unauthorized. No token provided.' });
+  }
+
+  const token = authHeader.split('Bearer ')[1];
+  try {
+    const decodedToken = await adminAuth.verifyIdToken(token);
+
+    // Check Firestore for admin role if full credentials are provided
+    if (adminRoleCheckEnabled && adminDb) {
+      const userDoc = await adminDb.collection('users').doc(decodedToken.uid).get();
+      if (!userDoc.exists || userDoc.data().role !== 'admin') {
+        return res.status(403).json({ error: 'You are not authorized to perform this action.' });
+      }
+    }
+
+    req.user = decodedToken;
+    next();
+  } catch (error) {
+    console.error('Token verification error:', error);
+    return res.status(401).json({ error: 'Unauthorized. Invalid or expired token.' });
+  }
+};
+
 // ── POST /api/upload  (multiple images, field name: "images") ─────────────
-app.post('/api/upload', upload.array('images', 10), (req, res) => {
+app.post('/api/upload', verifyAdmin, upload.array('images', 10), (req, res) => {
   if (!req.files || req.files.length === 0)
     return res.status(400).json({ error: 'No files uploaded' });
 
   const images = req.files.map((file, idx) => ({
-    src: `/uploads/${file.filename}`,
+    src: file.path, // Cloudinary URL
+    public_id: file.filename, // Cloudinary public_id (needed for deletion)
     label: idx === 0 ? 'Full' : `View ${idx}`,
   }));
 
   res.json({ images, coverImage: images[0].src });
 });
 
-// ── DELETE /api/upload  (body: { paths: ["/uploads/xxx.jpg", ...] }) ───────
-app.delete('/api/upload', async (req, res) => {
+// ── DELETE /api/upload  (body: { paths: ["public_id1", "public_id2"] }) ───────
+app.delete('/api/upload', verifyAdmin, async (req, res) => {
   const { paths } = req.body;
   if (!Array.isArray(paths)) return res.status(400).json({ error: 'paths must be an array' });
 
   const results = [];
   for (const p of paths) {
-    // Prevent directory traversal
-    const safe = path.normalize(p).replace(/^(\.\.[/\\])+/, '');
-    const full = path.join(__dirname, safe);
     try {
-      if (fs.existsSync(full)) await fs.promises.unlink(full);
-      results.push({ path: p, deleted: true });
+      if (p.includes('/')) {
+        // If it's a Cloudinary URL or path, try to extract public_id
+        // Example: https://res.cloudinary.com/.../image/upload/v1234/artgallery/xyz.jpg -> artgallery/xyz
+        const matches = p.match(/upload\/(?:v\d+\/)?([^\.]+)/);
+        const public_id = matches ? matches[1] : p;
+        await cloudinary.uploader.destroy(public_id);
+        results.push({ path: p, deleted: true });
+      } else {
+        await cloudinary.uploader.destroy(p);
+        results.push({ path: p, deleted: true });
+      }
     } catch (e) {
       results.push({ path: p, deleted: false, error: e.message });
     }

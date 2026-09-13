@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { db } from '../services/firebase';
+import { db, auth } from '../services/firebase';
 import { collection, getDocs, addDoc, deleteDoc, doc } from 'firebase/firestore';
+import { signOut } from 'firebase/auth';
 import './Admin.css';
 
 // ── helpers ────────────────────────────────────────────────────────────────
@@ -9,16 +10,31 @@ const BACKEND = import.meta.env.VITE_BACKEND_URL || '';  // empty = use Vite pro
 async function uploadImages(files) {
   const form = new FormData();
   Array.from(files).forEach(f => form.append('images', f));
-  const res = await fetch(`${BACKEND}/api/upload`, { method: 'POST', body: form });
+  
+  let token = '';
+  if (auth.currentUser) token = await auth.currentUser.getIdToken();
+
+  const res = await fetch(`${BACKEND}/api/upload`, { 
+    method: 'POST', 
+    headers: { 'Authorization': `Bearer ${token}` },
+    body: form 
+  });
   if (!res.ok) throw new Error((await res.json()).error || 'Upload failed');
   return res.json(); // { images: [{src, label}], coverImage }
 }
 
 async function deleteImages(paths) {
   if (!paths || paths.length === 0) return;
+  
+  let token = '';
+  if (auth.currentUser) token = await auth.currentUser.getIdToken();
+
   const res = await fetch(`${BACKEND}/api/upload`, {
     method: 'DELETE',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
     body: JSON.stringify({ paths }),
   });
   if (!res.ok) console.error('Delete failed', await res.text());
@@ -72,6 +88,12 @@ const Admin = () => {
     setArtPreviews(files.map(f => URL.createObjectURL(f)));
   };
 
+  const handleCancelArtFile = () => {
+    setArtFiles([]);
+    setArtPreviews([]);
+    document.getElementById('art-file').value = '';
+  };
+
   const handleAddArtwork = async (e) => {
     e.preventDefault();
     if (artFiles.length === 0) return alert('Select at least one image');
@@ -115,6 +137,12 @@ const Admin = () => {
     }
   };
 
+  const handleCancelSrvFile = () => {
+    setSrvFile(null);
+    setSrvPreview(null);
+    document.getElementById('srv-file').value = '';
+  };
+
   const handleAddService = async (e) => {
     e.preventDefault();
     if (!srvFile) return alert('Select an image');
@@ -141,10 +169,21 @@ const Admin = () => {
     } catch (err) { alert(err.message); }
   };
 
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+    } catch (err) {
+      console.error('Logout error:', err);
+    }
+  };
+
   // ── render ────────────────────────────────────────────────────────────────
   return (
     <div className="admin-container">
-      <h1>Gallery Admin</h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+        <h1 style={{ margin: 0 }}>Gallery Admin</h1>
+        <button onClick={handleLogout} style={{ padding: '0.6rem 1.2rem', background: '#e74c3c', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: '500' }}>Logout</button>
+      </div>
 
       <div className="admin-tabs">
         <button className={activeTab === 'artworks' ? 'active' : ''} onClick={() => setActiveTab('artworks')}>Manage Artworks</button>
@@ -165,10 +204,13 @@ const Admin = () => {
                 <input type="text" placeholder="Medium" value={artForm.medium} onChange={e => setArtForm({ ...artForm, medium: e.target.value })} required />
                 <input type="text" placeholder="Year" value={artForm.year} onChange={e => setArtForm({ ...artForm, year: e.target.value })} required />
                 <textarea placeholder="Description" value={artForm.description} onChange={e => setArtForm({ ...artForm, description: e.target.value })} required />
-                <input type="file" id="art-file" accept="image/jpeg,image/png,image/webp" multiple onChange={handleArtFileChange} required />
+                <input type="file" id="art-file" accept="image/jpeg,image/png,image/webp" multiple onChange={handleArtFileChange} required={artFiles.length === 0} />
                 {artPreviews.length > 0 && (
-                  <div className="admin-preview-row">
-                    {artPreviews.map((src, i) => <img key={i} src={src} alt="preview" className="admin-preview-img" />)}
+                  <div className="admin-preview-container" style={{ position: 'relative' }}>
+                    <div className="admin-preview-row">
+                      {artPreviews.map((src, i) => <img key={i} src={src} alt="preview" className="admin-preview-img" />)}
+                    </div>
+                    <button type="button" onClick={handleCancelArtFile} className="btn-cancel" style={{ marginTop: '10px', backgroundColor: '#e74c3c', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer' }}>Cancel Selection</button>
                   </div>
                 )}
                 <button type="submit" disabled={uploadingArt}>{uploadingArt ? 'Uploading...' : 'Add Artwork'}</button>
@@ -182,8 +224,13 @@ const Admin = () => {
                 <input type="text" placeholder="Service Title" value={srvForm.title} onChange={e => setSrvForm({ ...srvForm, title: e.target.value })} required />
                 <input type="text" placeholder="Price (e.g. Starting at ₹2,000)" value={srvForm.price} onChange={e => setSrvForm({ ...srvForm, price: e.target.value })} required />
                 <textarea placeholder="Description" value={srvForm.description} onChange={e => setSrvForm({ ...srvForm, description: e.target.value })} required />
-                <input type="file" id="srv-file" accept="image/jpeg,image/png,image/webp" onChange={handleSrvFileChange} required />
-                {srvPreview && <img src={srvPreview} alt="preview" className="admin-preview-img" />}
+                <input type="file" id="srv-file" accept="image/jpeg,image/png,image/webp" onChange={handleSrvFileChange} required={!srvFile} />
+                {srvPreview && (
+                  <div className="admin-preview-container" style={{ position: 'relative' }}>
+                    <img src={srvPreview} alt="preview" className="admin-preview-img" />
+                    <button type="button" onClick={handleCancelSrvFile} className="btn-cancel" style={{ marginTop: '10px', display: 'block', backgroundColor: '#e74c3c', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer' }}>Cancel Selection</button>
+                  </div>
+                )}
                 <button type="submit" disabled={uploadingSrv}>{uploadingSrv ? 'Uploading...' : 'Add Service'}</button>
               </form>
             </>

@@ -7,7 +7,7 @@ const Footer = ({ setCursorState }) => {
 
         <div className="footer-top">
           <div className="footer-brand">
-            <h3 className="footer-logo">Gautham.</h3>
+            <h3 className="footer-logo">Spade Arts</h3>
             <p className="footer-tagline">Drawn by hand. Created with patience.</p>
           </div>
 
@@ -30,7 +30,7 @@ const Footer = ({ setCursorState }) => {
         </div>
 
         <div className="footer-bottom">
-          <p>&copy; {new Date().getFullYear()} Gautham. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Spade Arts. All rights reserved.</p>
           <p>Portrait Artist — Visual Artist — India</p>
         </div>
       </div>

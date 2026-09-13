@@ -3,9 +3,11 @@ import './Contact.css';
 
 const EMPTY_FORM = { name: '', email: '', phone: '', type: '', message: '' };
 
+const BACKEND = import.meta.env.VITE_BACKEND_URL || ''; // empty = use Vite proxy
+
 const Contact = ({ setCursorState }) => {
-  const [form, setForm]       = useState(EMPTY_FORM);
-  const [status, setStatus]   = useState('idle'); // 'idle' | 'loading' | 'success' | 'error'
+  const [form, setForm] = useState(EMPTY_FORM);
+  const [status, setStatus] = useState('idle'); // 'idle' | 'loading' | 'success' | 'error'
   const [errorMsg, setErrorMsg] = useState('');
 
   const onChange = e => setForm({ ...form, [e.target.name]: e.target.value });
@@ -20,7 +22,7 @@ const Contact = ({ setCursorState }) => {
     setErrorMsg('');
 
     try {
-      const res = await fetch('/api/contact', {
+      const res = await fetch(`${BACKEND}/api/contact`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
@@ -55,11 +57,11 @@ const Contact = ({ setCursorState }) => {
               Have a photograph you'd like <em>transformed into art?</em>
             </h2>
           </div>
-          <a href="mailto:studio@gautham.art" className="btn-fill"
+          <a href="mailto:spadearts45@gmail.com" className="btn-fill"
             style={{ background: 'var(--terracotta)' }}
             onMouseEnter={() => setCursorState('hovering-link')}
             onMouseLeave={() => setCursorState('')}>
-            studio@gautham.art
+            spadearts45@gmail.com
           </a>
         </div>
 
@@ -131,7 +133,7 @@ const Contact = ({ setCursorState }) => {
 
             <div className="info-block">
               <p className="info-block-label">Email</p>
-              <p className="info-block-value">studio@gautham.art</p>
+              <p className="info-block-value">spadearts45@gmail.com</p>
             </div>
             <div className="info-block">
               <p className="info-block-label">Location</p>
@@ -144,8 +146,8 @@ const Contact = ({ setCursorState }) => {
 
             <div className="info-social">
               {[{ icon: '📸', label: 'Instagram', handle: '@gautham.art' },
-                { icon: '💬', label: 'WhatsApp', handle: '+91 XXXXX XXXXX' },
-                { icon: '🎨', label: 'Behance', handle: 'gautham.art' }
+              { icon: '💬', label: 'WhatsApp', handle: '+91 9677259750' },
+              { icon: '🎨', label: 'Behance', handle: 'gautham.art' }
               ].map(({ icon, label, handle }) => (
                 <a key={label} href="#" className="info-social-link"
                   onMouseEnter={() => setCursorState('hovering-link')}

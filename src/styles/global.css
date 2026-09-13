@@ -45,7 +45,8 @@ button { background: none; border: none; font-family: inherit; color: inherit; }
   position: fixed;
   top: 0; left: 0;
   width: 10px; height: 10px;
-  background: var(--navy);
+  background: #ffffff;
+  mix-blend-mode: difference;
   border-radius: 50%;
   pointer-events: none;
   z-index: 9999;
@@ -56,12 +57,12 @@ button { background: none; border: none; font-family: inherit; color: inherit; }
 .custom-cursor.hovering-link {
   width: 34px; height: 34px;
   background: transparent;
-  border: 1.5px solid var(--navy);
+  border: 1.5px solid #ffffff;
 }
 .custom-cursor.hovering-artwork {
   width: 48px; height: 48px;
   background: transparent;
-  border: 1.5px solid var(--terracotta);
+  border: 1.5px solid #ffffff;
 }
 @media (hover:none) { .custom-cursor { display: none; } }
 

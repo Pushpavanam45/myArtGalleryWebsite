@@ -30,3 +30,15 @@ backend/.env
 # Uploaded artwork images (local storage – not tracked in Git)
 backend/uploads/*
 !backend/uploads/.gitkeep
+
+# Firebase service account key files – NEVER commit these
+*serviceAccountKey*.json
+*service-account*.json
+*firebase-adminsdk*.json
+firebase-credentials.json
+
+# All .env variants except the example template
+.env.*
+!.env.example
+backend/.env.*
+!backend/.env.example

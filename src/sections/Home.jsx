@@ -28,7 +28,7 @@ const Home = ({ setCursorState }) => {
           </div>
 
           <h1 className="hero-title">
-            Gautham<br />
+            Spade Arts<br />
             <em>Studio</em>
           </h1>
 

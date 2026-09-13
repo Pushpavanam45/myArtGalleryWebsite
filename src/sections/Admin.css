@@ -128,6 +128,13 @@
   }
 }
 
+@media (max-width: 480px) {
+  .admin-container { padding: 80px 1rem; }
+  .admin-tabs { flex-direction: column; gap: 0.5rem; }
+  .admin-grid { grid-template-columns: 1fr; }
+  .admin-form-panel, .admin-list-panel { padding: 1.2rem; }
+}
+
 .admin-preview-row {
   display: flex;
   gap: 0.5rem;
