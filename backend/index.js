@@ -440,8 +440,27 @@ const verifyAdmin =
 app.post(
   '/api/upload',
   verifyAdmin,
-  upload.array('images', 10),
-
+  (req, res, next) => {
+    const uploadMiddleware = upload.array('images', 10);
+    uploadMiddleware(req, res, (err) => {
+      if (err) {
+        console.error('Upload error:', JSON.stringify({
+          message: err?.message,
+          name: err?.name,
+          stack: err?.stack,
+          code: err?.code,
+          http_code: err?.http_code,
+          response: err?.response?.data
+        }, null, 2));
+        
+        return res.status(500).json({
+          success: false,
+          error: err?.message || 'Image upload failed'
+        });
+      }
+      next();
+    });
+  },
   (req, res) => {
 
     if (
