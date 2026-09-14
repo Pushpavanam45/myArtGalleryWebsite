@@ -54,7 +54,7 @@ const Contact = ({ setCursorState }) => {
               <span>Commissions Open</span>
             </div>
             <h2 className="contact-cta-headline">
-              Have a photograph you'd like <em>transformed into art?</em>
+              Have a photograph you'd like <em>transformed into a realistic pencil portrait?</em>
             </h2>
           </div>
           <a href="mailto:spadearts45@gmail.com" className="btn-fill"
@@ -137,7 +137,7 @@ const Contact = ({ setCursorState }) => {
             </div>
             <div className="info-block">
               <p className="info-block-label">Location</p>
-              <p className="info-block-value">India · Worldwide Shipping</p>
+              <p className="info-block-value">Chennai, Tamil Nadu, India · Worldwide Shipping</p>
             </div>
             <div className="info-block">
               <p className="info-block-label">Turnaround</p>

@@ -9,10 +9,10 @@ const About = () => {
 
         <div className="about-images">
           <div className="about-img-main">
-            <img src={art9} alt="Portrait — Gaze" />
+            <img src={art9} alt="Realistic graphite portrait artwork by Spade Arts — Gaze" />
           </div>
           <div className="about-img-secondary">
-            <img src={art7} alt="Portrait — Four Faces" />
+            <img src={art7} alt="Custom pencil portrait commission by Spade Arts — Four Faces" />
           </div>
           <div className="about-img-badge">Est. 2019</div>
         </div>
@@ -29,10 +29,10 @@ const About = () => {
 
           <div className="about-bio">
             <p>
-              I am a portrait artist and visual creator based in India, specialising in graphite, charcoal, and acrylic. My work begins with a photograph and transforms it into a permanent, hand-crafted work of art.
+              I am a portrait artist and visual creator based in Chennai, Tamil Nadu, specialising in realistic pencil portraits, graphite, charcoal, and acrylic. My work begins with a photograph and transforms it into a permanent, hand-crafted work of art.
             </p>
             <p>
-              Each piece is built on the rigorous study of anatomy, light, and human expression — balancing technical discipline with emotional storytelling.
+              Each piece is built on the rigorous study of anatomy, light, and human expression — balancing technical discipline with emotional storytelling. Available for custom portrait commissions in Chennai and worldwide.
             </p>
           </div>
 

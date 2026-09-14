@@ -31,7 +31,10 @@ const Services = ({ setCursorState }) => {
               <div className="services-label-line"></div>
               <span>What I Offer</span>
             </div>
-            <h2 className="services-heading">Commission <em>Services</em></h2>
+            <h2 className="services-heading">Commission a <em>Custom Portrait</em></h2>
+            <p style={{ marginTop: '0.5rem', fontSize: '0.9rem', color: 'var(--text-muted)', maxWidth: '480px' }}>
+              Graphite pencil portraits, charcoal drawings, and acrylic paintings — personalized for you.
+            </p>
           </div>
           <a href="#contact"
             className="btn-fill"
@@ -58,7 +61,7 @@ const Services = ({ setCursorState }) => {
                 onMouseEnter={() => setCursorState('hovering-link')}
                 onMouseLeave={() => setCursorState('')}
                 onClick={e => { e.preventDefault(); document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' }); }}>
-                Enquire →
+                Commission this Portrait →
               </a>
             </div>
           ))}

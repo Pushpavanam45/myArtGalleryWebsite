@@ -15,15 +15,15 @@ const Home = ({ setCursorState }) => {
       <section id="hero" className="hero">
         
         {/* Floating Artworks (Option C) */}
-        <div className="hero-floating-art art-1"><img src={art1} alt="Artwork snippet" /></div>
-        <div className="hero-floating-art art-2"><img src={art2} alt="Artwork snippet" /></div>
-        <div className="hero-floating-art art-3"><img src={art3} alt="Artwork snippet" /></div>
-        <div className="hero-floating-art art-4"><img src={art4} alt="Artwork snippet" /></div>
+        <div className="hero-floating-art art-1"><img src={art1} alt="Realistic graphite pencil portrait by Spade Arts" /></div>
+        <div className="hero-floating-art art-2"><img src={art2} alt="Custom charcoal portrait artwork by Spade Arts" /></div>
+        <div className="hero-floating-art art-3"><img src={art3} alt="Handmade pencil sketch portrait by Spade Arts" /></div>
+        <div className="hero-floating-art art-4"><img src={art4} alt="Realistic portrait drawing by Spade Arts Chennai" /></div>
 
         <div className="hero-text">
           <div className="hero-eyebrow">
             <div className="hero-eyebrow-line"></div>
-            <span>Portrait &amp; Visual Artist</span>
+            <span>Portrait &amp; Visual Artist · Chennai, Tamil Nadu</span>
             <div className="hero-eyebrow-line"></div>
           </div>
 
@@ -37,13 +37,13 @@ const Home = ({ setCursorState }) => {
               onMouseEnter={() => setCursorState('hovering-link')}
               onMouseLeave={() => setCursorState('')}
               onClick={e => { e.preventDefault(); document.querySelector('#gallery')?.scrollIntoView({ behavior: 'smooth' }); }}>
-              View Gallery
+              View Portraits
             </a>
             <a href="#contact" className="btn-outline"
               onMouseEnter={() => setCursorState('hovering-link')}
               onMouseLeave={() => setCursorState('')}
               onClick={e => { e.preventDefault(); document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' }); }}>
-              Commission
+              Commission a Portrait
             </a>
           </div>
         </div>

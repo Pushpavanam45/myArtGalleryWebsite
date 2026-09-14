@@ -53,7 +53,7 @@ const Gallery = ({ setCursorState }) => {
             <div className="gallery-label-line"></div>
             <span>The Collection</span>
           </div>
-          <h2 className="gallery-heading">Selected <em>Works</em></h2>
+          <h2 className="gallery-heading">Pencil &amp; Charcoal <em>Portraits</em></h2>
         </div>
 
         {/* Filters */}
@@ -78,7 +78,7 @@ const Gallery = ({ setCursorState }) => {
               onMouseEnter={() => setCursorState('hovering-artwork')}
               onMouseLeave={() => setCursorState('')}>
               <div className="gallery-card-img">
-                <img src={artwork.coverImage} alt={artwork.title} loading="lazy" />
+                <img src={artwork.coverImage} alt={artwork.title ? `${artwork.title} — realistic portrait artwork by Spade Arts` : 'Realistic pencil or charcoal portrait artwork by Spade Arts Chennai'} loading="lazy" />
                 <div className="gallery-card-overlay">
                   <span className="gallery-card-view">View Artwork</span>
                 </div>
