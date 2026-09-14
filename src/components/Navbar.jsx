@@ -22,9 +22,10 @@ const Navbar = ({ setCursorState }) => {
   return (
     <nav className="navbar">
       <div className="navbar-container container flex">
-        <Link to="/" className="navbar-logo"
+        <Link to="/" className="navbar-logo flex" style={{ alignItems: 'center', gap: '10px' }}
           onMouseEnter={() => setCursorState('hovering-link')}
           onMouseLeave={() => setCursorState('')}>
+          <img src="/logo.jpg" alt="Spade Arts Logo" style={{ height: '36px', width: 'auto', borderRadius: '4px', mixBlendMode: 'multiply' }} />
           Spade Arts
         </Link>
 
